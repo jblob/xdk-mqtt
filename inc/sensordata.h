@@ -3,17 +3,15 @@
 #include <stdbool.h>
 #include "sensorTypes.h"
 
-// Constants
-#define MAX_MEASUREMENTS (  5 )
-#define NUM_SENSORS      (  5 )
-#define SENSOR_NAME_SZ   ( 20 )
-#define SENSOR_VALUE_SZ  ( 30 )
+#define MAX_MEASUREMENTS  (  5 )
+#define NUM_SENSORS       (  5 )
+#define SENSOR_NAME_SIZE  ( 20 )
+#define SENSOR_VALUE_SIZE ( 30 )
 
-// Types
 typedef struct
 {
-    char name[SENSOR_NAME_SZ];
-    char value[SENSOR_VALUE_SZ];
+    char name[SENSOR_NAME_SIZE];
+    char value[SENSOR_VALUE_SIZE];
 } NameValue;
 
 typedef struct
@@ -25,12 +23,8 @@ typedef struct
 typedef void(*SensorGetter)(SensorData* data);
 typedef sensor_errorType_t(*SensorInitializer)(void* handle);
 
-// Global Variables
-
-// Defined in main.c
 extern SensorGetter sensors[];
 extern bool enabledSensors[];
 
-// Prototypes
 void SensorInit(SensorInitializer init, void* handle, const char* label);
 void SensorDataClear(SensorData* data);

@@ -7,10 +7,10 @@ static const char MAGNETO_LABEL[] = "BMM150 Magnetometer";
 static void FillMagnetoData(SensorData* data, magnetometer_xyzData_t* meas)
 {
     data->numMeas = 1;
-    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "magnetometer");
+    snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "magnetometer");
 
     snprintf(data->meas[0].value,
-             SENSOR_VALUE_SZ,
+             SENSOR_VALUE_SIZE,
              "{\"x\":%f, \"y\":%f, \"z\":%f}",
              (float)meas->xAxisData,
              (float)meas->yAxisData,

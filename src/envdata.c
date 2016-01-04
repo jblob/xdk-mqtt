@@ -8,14 +8,14 @@ static void FillEnvData(SensorData* data, environmental_data_t* meas)
 {
     data->numMeas = 3;
 
-    snprintf(data->meas[0].name,  SENSOR_NAME_SZ,  "%s", "temperature");
-    snprintf(data->meas[0].value, SENSOR_VALUE_SZ, "%f", meas->temperature/1000.0);
+    snprintf(data->meas[0].name,  SENSOR_NAME_SIZE,  "%s", "temperature");
+    snprintf(data->meas[0].value, SENSOR_VALUE_SIZE, "%f", meas->temperature/1000.0);
 
-    snprintf(data->meas[1].name,  SENSOR_NAME_SZ,  "%s", "pressure");
-    snprintf(data->meas[1].value, SENSOR_VALUE_SZ, "%f", meas->pressure/100.0);
+    snprintf(data->meas[1].name,  SENSOR_NAME_SIZE,  "%s", "pressure");
+    snprintf(data->meas[1].value, SENSOR_VALUE_SIZE, "%f", meas->pressure/100.0);
 
-    snprintf(data->meas[2].name,  SENSOR_NAME_SZ,  "%s", "humidity");
-    snprintf(data->meas[2].value, SENSOR_VALUE_SZ, "%d", (int)meas->humidity);
+    snprintf(data->meas[2].name,  SENSOR_NAME_SIZE,  "%s", "humidity");
+    snprintf(data->meas[2].value, SENSOR_VALUE_SIZE, "%d", (int)meas->humidity);
 }
 
 void EnvSensorInit()

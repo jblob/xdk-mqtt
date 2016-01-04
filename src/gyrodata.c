@@ -7,10 +7,10 @@ static const char GYRO_LABEL[] = "BMG160 Gyroscope";
 static void FillGyroData(SensorData* data, gyro_xyzData_t* meas)
 {
     data->numMeas = 1;
-    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "gyro");
+    snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "gyro");
 
     snprintf(data->meas[0].value,
-             SENSOR_VALUE_SZ,
+             SENSOR_VALUE_SIZE,
              "{\"x\":%f, \"y\":%f, \"z\":%f}",
              (float)meas->xData/1000.0,
              (float)meas->yData/1000.0,

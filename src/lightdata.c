@@ -8,10 +8,10 @@ static const char LIGHT_SENSOR_LABEL[] = "MAX09 Light Sensor";
 static void FillLightData(SensorData* data, lightsensor_data_t* meas)
 {
     data->numMeas = 1;
-    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "light");
+    snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "light");
 
     snprintf(data->meas[0].value,
-             SENSOR_VALUE_SZ,
+             SENSOR_VALUE_SIZE,
              "%f",
              (float)meas->sensorDataInMilliLux/1000.0);
 }

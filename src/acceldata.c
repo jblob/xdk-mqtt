@@ -4,16 +4,13 @@
 
 static const char ACCEL_LABEL[] = "BMA280 Accelerometer";
 
-// Static declarations
 static void FillAccelData(SensorData* data, accelerometer_xyzData_t* meas)
 {
-    // Setup SensorData
     data->numMeas = 1;
-    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "acceleration");
+    snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "acceleration");
 
-    // Setup data
     snprintf(data->meas[0].value,
-             SENSOR_VALUE_SZ,
+             SENSOR_VALUE_SIZE,
              "{\"x\":%f, \"y\":%f, \"z\":%f}",
              (float)meas->xAxisData/1000.0,
              (float)meas->yAxisData/1000.0,

@@ -48,7 +48,7 @@ void TickKill()
     killTick = 1;
 }
 
-void Tick(void* context)
+static void Tick(void* context)
 {
     for(;;)
     {
@@ -156,7 +156,7 @@ void WifiReconnect(void* context)
     }
 }
 
-void WifiConnectionCallback(int status)
+static void WifiConnectionCallback(int status)
 {
     if(0 == status)
     {
@@ -171,7 +171,7 @@ void WifiConnectionCallback(int status)
 
 }
 
-void MqttConnectInit()
+static void MqttConnectInit()
 {
     OS_taskCreate(MqttConnectionTask,
                   (const int8_t *) "MQTT Connection",
