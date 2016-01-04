@@ -63,13 +63,13 @@ extern void CommandConfigHandler(MessageData* data)
         }
     }
 
-    if(-1 != handleSelector && -1 != commandToken && -1 != valueToken)
+    if((-1 != handleSelector) && (-1 != commandToken) && (-1 != valueToken))
     {
         handlers[handleSelector](commandJson, &tokens[commandToken + 1], &tokens[valueToken + 1]);
     }
     else
     {
-        printf("Unkown command received: %s %d/%d/%d/%d\n\r",
+        printf("Unknown command received: %s %d/%d/%d/%d\n\r",
                commandJson,
                numTokens,
                handleSelector,
