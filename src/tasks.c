@@ -23,8 +23,8 @@ static const uint32_t PUBLISH_BLOCK_TIME = 0xffff;
 static const uint32_t TASK_STACK_SIZE = 1000;
 static const uint32_t TASK_PRIO = 4;
 
-static int killTick = 0;
-static int wifiConnected = 0;
+static bool killTick = false;
+static bool wifiConnected = false;
 
 void TickInit()
 {
@@ -45,7 +45,7 @@ void TickInit()
 
 void TickKill()
 {
-    killTick = 1;
+    killTick = true;
 }
 
 static void Tick(void* context)
@@ -55,7 +55,7 @@ static void Tick(void* context)
         WDOG_Feed();
         if(killTick)
         {
-            killTick = 0;
+            killTick = false;
             OS_taskDelete(NULL);
         }
 
@@ -97,7 +97,7 @@ void Restart()
     WDOG_Feed();
     MqttDeinit();
     printf("WiFi deinit = %d\n\r", WiFiDeinit());
-    wifiConnected = 0;
+    wifiConnected = false;
     MqttConnectInit();
     OS_taskCreate(WifiReconnect,
                   (const int8_t *) "WiFi Reconnection",
@@ -143,7 +143,7 @@ void WifiReconnect(void* context)
 {
     for(;;)
     {
-        if(1 == wifiConnected)
+        if(wifiConnected)
         {
             OS_taskDelete(NULL);
         }
@@ -156,22 +156,7 @@ void WifiReconnect(void* context)
     }
 }
 
-static void WifiConnectionCallback(int status)
-{
-    if(0 == status)
-    {
-        printf("WiFi connected OK!\n");
-        WiFiPrintIP();
-        wifiConnected = 1;
-    }
-    else
-    {
-        Restart();
-    }
-
-}
-
-static void MqttConnectInit()
+void MqttConnectInit()
 {
     OS_taskCreate(MqttConnectionTask,
                   (const int8_t *) "MQTT Connection",
@@ -180,13 +165,28 @@ static void MqttConnectInit()
                   reconnectTaskHandle);
 }
 
+static void WifiConnectionCallback(int status)
+{
+    if(0 == status)
+    {
+        printf("WiFi connected OK!\n");
+        WiFiPrintIP();
+        wifiConnected = true;
+    }
+    else
+    {
+        Restart();
+    }
+
+}
+
 static void MqttConnectionTask(void* context)
 {
     for(;;)
     {
         WDOG_Feed();
         context = context;
-        if(1 == wifiConnected)
+        if(wifiConnected)
         {
             printf("Connecting MQTT...\n");
             if(0 == MqttInit())
