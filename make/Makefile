@@ -147,6 +147,7 @@ flashwin: $(OUTPUT).bin
 
 flashnix: $(OUTPUT).bin
 	@echo "si 1" > $(FLASH_CMD_FILE)
+	@echo "speed 4000" >> $(FLASH_CMD_FILE)
 	@echo "device $(DEVICE)" >> $(FLASH_CMD_FILE)
 	@echo "halt" >> $(FLASH_CMD_FILE)
 	@echo "loadbin $(OUTPUT).hex $(XDK_APP_ADDRESS)" >> $(FLASH_CMD_FILE)

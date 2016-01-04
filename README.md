@@ -15,6 +15,7 @@ This app uses two libraries:
 ## Extra steps for Linux/OSX (needed only once):
 - Set XDK_SDK environment variable to XDK SDK
 - Set PAHO_PKT environment variable to \<PAHO_REPO\>/MQTTPacket/src directory
+- Set JSMN environment variable to JSMN directory
 - Set GCC_ARM
 - Make sure that both GCC ARM and Segger JLink binaries are available from command line
 

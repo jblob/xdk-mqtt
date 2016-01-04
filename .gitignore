@@ -26,3 +26,15 @@
 *.exe
 *.out
 *.app
+
+# Generated files + folders
+make/lst/
+make/exe/
+make/build/
+inc/credentials.h
+make/jlinkcmd.jlink
+
+
+# Credentials files
+src/credentials.json
+
