@@ -17,7 +17,6 @@ void SensorControl(const char* json, jsmntok_t* command, jsmntok_t* val);
 static jsmn_parser parser;
 static jsmntok_t tokens[MAX_TOKENS];
 static CommandHandle handlers[] = {&LedControl, &PeriodControl, &SensorControl};
-extern int enabledSensors[];
 extern OS_taskHandle_tp tickTaskHandle;
 
 bool IsName(const char* expectedName, const char* name, int len)
@@ -158,23 +157,23 @@ void SensorControl(const char* json, jsmntok_t* command, jsmntok_t* val)
     {
         if(IsName("env", json + command->start, 3))
         {
-            enabledSensors[0] = value;
+            enabledSensors[0] = (bool)value;
         }
         else if(IsName("acc", json + command->start, 3))
         {
-            enabledSensors[1] = value;
+            enabledSensors[1] = (bool)value;
         }
         else if(IsName("lgt", json + command->start, 3))
         {
-            enabledSensors[2] = value;
+            enabledSensors[2] = (bool)value;
         }
         else if(IsName("gyr", json + command->start, 3))
         {
-            enabledSensors[3] = value;
+            enabledSensors[3] = (bool)value;
         }
         else if(IsName("mag", json + command->start, 3))
         {
-            enabledSensors[4] = value;
+            enabledSensors[4] = (bool)value;
         }
         else
         {

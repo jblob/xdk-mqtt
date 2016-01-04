@@ -5,7 +5,7 @@
 
 static LED_handle_tp leds[] = {NULL, NULL, NULL};
 
-extern int LedInit()
+int LedInit()
 {
     int ret = 0;
     leds[RED_LED] = LED_create(gpioRedLed_Handle, GPIO_STATE_OFF);
@@ -22,7 +22,7 @@ extern int LedInit()
     return ret;
 }
 
-extern int LedDeinit()
+int LedDeinit()
 {
     int ret = 0;
     for(int ledidx = 0; ledidx < NUM_LEDS; ++ledidx)
@@ -35,7 +35,7 @@ extern int LedDeinit()
     return ret;
 }
 
-extern void LedSet(int led, LED_operations_t op)
+void LedSet(int led, LED_operations_t op)
 {
     if(led < NUM_LEDS)
     {

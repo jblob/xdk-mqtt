@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "mqtt.h"
 #include "MQTTClient.h"
@@ -8,8 +9,8 @@
 // auto generated file with credentials
 #include "credentials.h"
 
-MqttErrorCode mqttConnect();
-size_t serializeData(NameValue* data, char* msg);
+static MqttErrorCode MqttConnect();
+static size_t SerializeData(NameValue* data, char* msg);
 
 static Network mqttNet;
 static Client mqttClient;
@@ -19,20 +20,20 @@ static uint8_t buf[MQTT_BUFF_SIZE];
 static uint8_t readbuf[MQTT_BUFF_SIZE];
 
 static uint8_t MESSAGE_ID = 0;
-static int deletePolling = 0;
+static bool deletePolling = false;
 static uint32_t pollingPeriod = 1000;
 static int32_t MQTT_YIELD_TIMEOUT = 50;
 
-extern int MqttInit(void)
+int MqttInit(void)
 {
     printf("Mqtt Init\n");
     MqttErrorCode returnValue = FAILURE;
     NewNetwork(&mqttNet);
-    returnValue = mqttConnect();
+    returnValue = MqttConnect();
     if(SUCCESS == returnValue)
     {
         printf("Mqtt Success\n");
-        deletePolling = 0;
+        deletePolling = false;
     }
     else
     {
@@ -42,42 +43,43 @@ extern int MqttInit(void)
     return returnValue;
 }
 
-extern int MqttReconnect(void)
+int MqttReconnect(void)
 {
-    return mqttConnect();
+    return MqttConnect();
 }
 
-extern void MqttDeinit(void)
+void MqttDeinit(void)
 {
     printf("Mqtt disconnect!\n");
     mqttNet.disconnect(&mqttNet);
 }
 
-extern int MqttSendData(NameValue* data)
+int MqttSendData(NameValue* data)
 {
     MQTTMessage msg;
     msg.id = MESSAGE_ID++;
     msg.qos = 0;
     char msgBuff[MQTT_BUFF_SIZE];
     msg.payload = msgBuff;
-    msg.payloadlen = serializeData(data, msgBuff);
+    msg.payloadlen = SerializeData(data, msgBuff);
     int ret = MQTTPublish(&mqttClient, MQTT_TOPIC"data", &msg);
     printf("Mqtt Sent :: %d %d\n", ret, msg.payloadlen);
     return ret;
 }
 
-extern void MqttSubscribe(messageHandler callback)
+void MqttSubscribe(messageHandler callback)
 {
     int ret = MQTTSubscribe(&mqttClient, "/v1/"MQTT_USER"/cmd", QOS0, callback);
     printf("MqttSubscribe:: %s %d\n", "/v1/"MQTT_USER"/cmd", ret);
 }
 
-extern void MqttYield(void* context)
+void MqttYield(void* context)
 {
     for (;;)
     {
         if(deletePolling)
         {
+            // Note: This kills the thread.
             OS_taskDelete(NULL);
         }
         context = context;
@@ -87,7 +89,7 @@ extern void MqttYield(void* context)
     }
 }
 
-MqttErrorCode mqttConnect()
+MqttErrorCode MqttConnect()
 {
     MqttErrorCode ret = FAILURE;
     ret = ConnectNetwork(&mqttNet, (int8_t*)MQTT_SERVER, MQTT_SERVER_PORT);
@@ -123,7 +125,7 @@ MqttErrorCode mqttConnect()
     return ret;
 }
 
-size_t serializeData(NameValue* data, char* msg)
+static size_t SerializeData(NameValue* data, char* msg)
 {
     return sprintf(msg,
                    "{\"meaning\":\"%s\",\"path\":\"%s\",\"value\":%s}",
@@ -132,12 +134,12 @@ size_t serializeData(NameValue* data, char* msg)
                    data->value);
 }
 
-extern void MqttStopPolling()
+void MqttStopPolling()
 {
-    deletePolling = 1;
+    deletePolling = true;
 }
 
-extern void MqttSetPollingPeriod(uint32_t period)
+void MqttSetPollingPeriod(uint32_t period)
 {
     pollingPeriod = period;
 }

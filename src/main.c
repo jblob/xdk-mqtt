@@ -26,7 +26,13 @@ SensorGetter sensors[] = {&EnvSensorGetData,
                           &LightGetData,
                           &GyroGetData,
                           &MagnetoGetData};
-int enabledSensors[] = {1, 1, 1, 1, 1};
+
+bool enabledSensors[] = {true, // Env Sensor
+                         true, // Accel Sensor
+                         true, // Light Sensor
+                         true, // Gyro Sensor
+                         true  // Magneto Sensor
+                        };
 
 void ButtonOneCallback(void *handle, uint32_t userParameter);
 void WDogInit();

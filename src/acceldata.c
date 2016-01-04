@@ -4,37 +4,40 @@
 
 static const char ACCEL_LABEL[] = "BMA280 Accelerometer";
 
-extern void InitAccelData(SensorData* storage)
+// Static declarations
+static void FillAccelData(SensorData* data, accelerometer_xyzData_t* meas)
 {
-    storage->numMeas = 1;
-    sprintf(storage->meas[0].name, "%s", "acceleration");
+    // Setup SensorData
+    data->numMeas = 1;
+    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "acceleration");
+
+    // Setup data
+    snprintf(data->meas[0].value,
+             SENSOR_VALUE_SZ,
+             "{\"x\":%f, \"y\":%f, \"z\":%f}",
+             (float)meas->xAxisData/1000.0,
+             (float)meas->yAxisData/1000.0,
+             (float)meas->zAxisData/1000.0);
 }
 
-void FillAccelData(SensorData* data, accelerometer_xyzData_t* meas)
-{
-    InitAccelData(data);
-    sprintf(data->meas[0].value,
-            "{\"x\":%f, \"y\":%f, \"z\":%f}",
-            (float)meas->xAxisData/1000.0,
-            (float)meas->yAxisData/1000.0,
-            (float)meas->zAxisData/1000.0);
-}
-
-extern void AccelInit()
+void AccelInit()
 {
     SensorInit(&accelerometerInit,
                xdkAccelerometers_BMA280_Handle,
                ACCEL_LABEL);
 }
 
-extern void AccelDeinit()
+void AccelDeinit()
 {
 }
 
-extern void AccelGetData(SensorData* data)
+void AccelGetData(SensorData* data)
 {
     sensor_errorType_t returnValue = SENSOR_ERROR;
     accelerometer_xyzData_t getaccelData = {0};
+
+    // Clear data so that a failed sensor read will not be reported
+    SensorDataClear(data);
 
     returnValue = accelerometerReadXyzLsbValue(xdkAccelerometers_BMA280_Handle, &getaccelData);
     if(SENSOR_SUCCESS == returnValue)

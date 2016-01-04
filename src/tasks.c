@@ -6,10 +6,10 @@
 #include "wifi.h"
 #include "controls.h"
 
-void Tick(void* context);
-void MqttConnect(void* context);
-void WifiConnectionCallback(int status);
-void WifiReconnect(void* context);
+static void Tick(void* context);
+static void MqttConnectionTask(void* context);
+static void WifiConnectionCallback(int status);
+static void WifiReconnect(void* context);
 
 OS_taskHandle_tp tickTaskHandle = NULL;
 static OS_taskHandle_tp commandTaskHandle;
@@ -20,16 +20,13 @@ static uint32_t PUBLISH_PERIOD = 3000;
 static const uint32_t COMMAND_PERIOD = 1000;
 static const uint32_t RECONNECT_PERIOD = 7000;
 static const uint32_t PUBLISH_BLOCK_TIME = 0xffff;
-static const uint32_t NUM_SENSORS = 5;
 static const uint32_t TASK_STACK_SIZE = 1000;
 static const uint32_t TASK_PRIO = 4;
 
-extern SensorGetter sensors[];
-extern int enabledSensors[];
 static int killTick = 0;
 static int wifiConnected = 0;
 
-extern void TickInit()
+void TickInit()
 {
     int8_t retValPerSwTimer = OS_ERR_NOT_ENOUGH_MEMORY;
     retValPerSwTimer = OS_taskCreate(Tick,
@@ -46,7 +43,7 @@ extern void TickInit()
     printf("Tick Init Success!\n\r");
 }
 
-extern void TickKill()
+void TickKill()
 {
     killTick = 1;
 }
@@ -67,8 +64,9 @@ void Tick(void* context)
 
         for(uint32_t sensor = 0; sensor < NUM_SENSORS; ++sensor)
         {
-            if(1 == enabledSensors[sensor])
+            if(enabledSensors[sensor])
             {
+                // Get data
                 sensors[sensor](&data);
 
                 for(uint32_t meas = 0; meas < data.numMeas; ++meas)
@@ -94,7 +92,7 @@ void Tick(void* context)
     }
 }
 
-extern void Restart()
+void Restart()
 {
     WDOG_Feed();
     MqttDeinit();
@@ -108,7 +106,7 @@ extern void Restart()
                   wifiReconnectHandle);
 }
 
-extern void CommandHandlerInit()
+void CommandHandlerInit()
 {
     int8_t retValPerSwTimer = OS_ERR_NOT_ENOUGH_MEMORY;
     retValPerSwTimer = OS_taskCreate(MqttYield,
@@ -127,7 +125,7 @@ extern void CommandHandlerInit()
     }
 }
 
-extern void WifiConnectInit()
+void WifiConnectInit()
 {
     printf("Connecting WiFi...\n");
     if(-1 == WiFiInit(&WifiConnectionCallback))
@@ -173,16 +171,16 @@ void WifiConnectionCallback(int status)
 
 }
 
-extern void MqttConnectInit()
+void MqttConnectInit()
 {
-    OS_taskCreate(MqttConnect,
+    OS_taskCreate(MqttConnectionTask,
                   (const int8_t *) "MQTT Connection",
                   TASK_STACK_SIZE,
                   TASK_PRIO - 2,
                   reconnectTaskHandle);
 }
 
-void MqttConnect(void* context)
+static void MqttConnectionTask(void* context)
 {
     for(;;)
     {

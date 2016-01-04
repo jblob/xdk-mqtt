@@ -4,37 +4,37 @@
 
 static const char MAGNETO_LABEL[] = "BMM150 Magnetometer";
 
-void InitMagnetoData(SensorData* storage)
+static void FillMagnetoData(SensorData* data, magnetometer_xyzData_t* meas)
 {
-    storage->numMeas = 1;
-    sprintf(storage->meas[0].name, "%s", "magnetometer");
+    data->numMeas = 1;
+    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "magnetometer");
+
+    snprintf(data->meas[0].value,
+             SENSOR_VALUE_SZ,
+             "{\"x\":%f, \"y\":%f, \"z\":%f}",
+             (float)meas->xAxisData,
+             (float)meas->yAxisData,
+             (float)meas->zAxisData);
 }
 
-void FillMagnetoData(SensorData* data, magnetometer_xyzData_t* meas)
-{
-    InitMagnetoData(data);
-    sprintf(data->meas[0].value,
-            "{\"x\":%f, \"y\":%f, \"z\":%f}",
-            (float)meas->xAxisData,
-            (float)meas->yAxisData,
-            (float)meas->zAxisData);
-}
-
-extern void MagnetoInit()
+void MagnetoInit()
 {
     SensorInit(&magnetometerInit,
                xdkMagnetometer_BMM150_Handle,
                MAGNETO_LABEL);
 }
 
-extern void MagnetoDeinit()
+void MagnetoDeinit()
 {
 }
 
-extern void MagnetoGetData(SensorData* data)
+void MagnetoGetData(SensorData* data)
 {
     sensor_errorType_t returnValue = SENSOR_ERROR;
     magnetometer_xyzData_t getMagData = {0};
+
+    // Clear data so that a failed sensor read will not be reported
+    SensorDataClear(data);
 
     returnValue = magnetometerReadXyzLsbData(xdkMagnetometer_BMM150_Handle, &getMagData);
     if(SENSOR_SUCCESS == returnValue)

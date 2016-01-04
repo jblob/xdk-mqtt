@@ -7,7 +7,7 @@ int SetButtonCallback(BUTTON_handle_tp* buttonHandle, buttonHandler handler);
 
 static BUTTON_handle_tp ButtonOneHandle = (BUTTON_handle_tp) NULL;
 
-extern int ButtonOneInit(buttonHandler handler)
+int ButtonOneInit(buttonHandler handler)
 {
     int ret = -1;
     ButtonOneHandle = BUTTON_create(gpioButton1_Handle, GPIO_STATE_OFF);
@@ -55,12 +55,12 @@ int SetButtonCallback(BUTTON_handle_tp* buttonHandle, buttonHandler handler)
     return ret;
 }
 
-extern int IsButtonPressed(void* handle)
+int IsButtonPressed(void* handle)
 {
     return BUTTON_isPressed(handle);
 }
 
-extern int IsButtonReleased(void* handle)
+int IsButtonReleased(void* handle)
 {
     return BUTTON_isReleased(handle);
 }

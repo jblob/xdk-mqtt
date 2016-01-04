@@ -17,7 +17,7 @@ void WifiConnectedCallback(WLI_connectStatus_t connectStatus);
 static int wifiInitDone = 0;
 static WifiCallback externCallback = NULL;
 
-extern int WiFiInit(WifiCallback callback)
+int WiFiInit(WifiCallback callback)
 {
     externCallback = callback;
     WDOG_Feed();
@@ -44,7 +44,6 @@ extern int WiFiInit(WifiCallback callback)
     connectSSID = (WLI_connectSSID_t) WLAN_CONNECT_WPA_SSID;
     connectPassPhrase = (WLI_connectPassPhrase_t) WLAN_CONNECT_WPA_PASS;
 
-    // if (WLI_SUCCESS == WLI_connectWPA(connectSSID, connectPassPhrase, &WifiConnectedCallback))
     if (WLI_SUCCESS == WLI_connectWPA(connectSSID, connectPassPhrase, NULL))
     {
         WDOG_Feed();
@@ -65,22 +64,24 @@ extern int WiFiInit(WifiCallback callback)
     return retVal;
 }
 
-extern int WiFiDeinit()
+int WiFiDeinit()
 {
     printf("WiFi disconnect!\n");
     return WLI_disconnect(NULL);
 }
 
-extern void WiFiPrintIP()
+void WiFiPrintIP()
 {
     NCI_ipSettings_t myIpSettings;
-    memset(&myIpSettings, (uint32_t) 0, sizeof(myIpSettings));
-    Ip_Address_T* IpaddressHex = Ip_getMyIpAddr();
-    int8_t ipAddressMy[15] = {0};
+    memset(&myIpSettings, 0, sizeof(myIpSettings));
 
+    Ip_Address_T* IpaddressHex = Ip_getMyIpAddr();
     NCI_getIpSettings(&myIpSettings);
     *IpaddressHex = Basics_htonl(myIpSettings.ipV4);
+
+    int8_t ipAddressMy[15] = {0};
     (void)Ip_convertAddrToString(IpaddressHex,(char *)&ipAddressMy);
+
     printf("IP address of the device: %s \r\n ", ipAddressMy);
 }
 

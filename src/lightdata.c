@@ -4,36 +4,37 @@
 
 static const char LIGHT_SENSOR_LABEL[] = "MAX09 Light Sensor";
 
-void InitLightData(SensorData* storage)
+
+static void FillLightData(SensorData* data, lightsensor_data_t* meas)
 {
-    storage->numMeas = 1;
-    sprintf(storage->meas[0].name, "%s", "light");
+    data->numMeas = 1;
+    snprintf(data->meas[0].name, SENSOR_NAME_SZ, "%s", "light");
+
+    snprintf(data->meas[0].value,
+             SENSOR_VALUE_SZ,
+             "%f",
+             (float)meas->sensorDataInMilliLux/1000.0);
 }
 
-void FillLightData(SensorData* data, lightsensor_data_t* meas)
-{
-    InitLightData(data);
-    sprintf(data->meas[0].value,
-            "%f",
-            (float)meas->sensorDataInMilliLux/1000.0);
-}
-
-extern void LightInit()
+void LightInit()
 {
     SensorInit(&lightsensorInit,
                xdkLightsensors_MAX09_Handle,
                LIGHT_SENSOR_LABEL);
 }
 
-extern void LightDeinit()
+void LightDeinit()
 {
 }
 
-extern void LightGetData(SensorData* data)
+void LightGetData(SensorData* data)
 {
     sensor_errorType_t returnValue = SENSOR_ERROR;
     lightsensor_data_t luxRawData = {0};
     lightsensor_data_t milliLuxData = {0};
+
+    // Clear data so that a failed sensor read will not be reported
+    SensorDataClear(data);
 
     returnValue = lightsensorReadRawData(xdkLightsensors_MAX09_Handle, &luxRawData);
     if(SENSOR_SUCCESS == returnValue)

@@ -7,11 +7,11 @@
 
 typedef enum returnCode MqttErrorCode;
 
-extern int  MqttInit();
-extern void MqttDeinit();
-extern int  MqttReconnect();
-extern int  MqttSendData(NameValue* data);
-extern void MqttSubscribe(messageHandler callback);
-extern void MqttYield(void* context);
-extern void MqttStopPolling();
-extern void MqttSetPollingPeriod(uint32_t period);
+int  MqttInit();
+void MqttDeinit();
+int  MqttReconnect();
+int  MqttSendData(NameValue* data);
+void MqttSubscribe(messageHandler callback);
+void MqttYield(void* context);
+void MqttStopPolling();
+void MqttSetPollingPeriod(uint32_t period);
