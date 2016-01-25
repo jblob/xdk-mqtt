@@ -14,10 +14,11 @@ This app uses two libraries:
 - Linux/OSX only: Segger JLink debug probe
 
 ## Extra steps for Linux/OSX (needed only once):
-- Set XDK_SDK environment variable to XDK SDK
+- Set XDK_SDK environment variable to XDK SDK root directory (the one containing xdk110 folder)
 - Set PAHO_PKT environment variable to \<PAHO_REPO\>/MQTTPacket/src directory
 - Set JSMN environment variable to JSMN directory
-- Set GCC_ARM
+- Set GCC_ARM environment variable to ARM gcc compiler installation
+- Set SHELLNAMES and SH variables in \<XDK_SDK\>/xdk110/make/application.mk to your current shell (bash, zsh, etc.)
 - Make sure that both GCC ARM and Segger JLink binaries are available from command line
 
 # Running the app
