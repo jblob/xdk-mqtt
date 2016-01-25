@@ -7,10 +7,11 @@ This app uses two libraries:
 
 # What you need
 
-- Grab & install XDK Workbench
+- Grab & install XDK Workbench (app tested with version 1.3)
 - Clone Paho MQTT
 - Clone JSMN
 - Clone this app
+- Linux/OSX only: Segger JLink debug probe
 
 ## Extra steps for Linux/OSX (needed only once):
 - Set XDK_SDK environment variable to XDK SDK
