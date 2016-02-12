@@ -26,7 +26,7 @@ static const uint32_t TASK_PRIO = 4;
 static bool killTick = false;
 static bool wifiConnected = false;
 
-void TickInit()
+void TickInit(void)
 {
     int8_t retValPerSwTimer = OS_ERR_NOT_ENOUGH_MEMORY;
     retValPerSwTimer = OS_taskCreate(Tick,
@@ -43,7 +43,7 @@ void TickInit()
     printf("Tick Init Success!\n\r");
 }
 
-void TickKill()
+void TickKill(void)
 {
     killTick = true;
 }
@@ -92,7 +92,7 @@ static void Tick(void* context)
     }
 }
 
-void Restart()
+void Restart(void)
 {
     WDOG_Feed();
     MqttDeinit();
@@ -106,7 +106,7 @@ void Restart()
                   wifiReconnectHandle);
 }
 
-void CommandHandlerInit()
+void CommandHandlerInit(void)
 {
     int8_t retValPerSwTimer = OS_ERR_NOT_ENOUGH_MEMORY;
     retValPerSwTimer = OS_taskCreate(MqttYield,
@@ -125,7 +125,7 @@ void CommandHandlerInit()
     }
 }
 
-void WifiConnectInit()
+void WifiConnectInit(void)
 {
     printf("Connecting WiFi...\n");
     if(-1 == WiFiInit(&WifiConnectionCallback))
@@ -156,7 +156,7 @@ void WifiReconnect(void* context)
     }
 }
 
-void MqttConnectInit()
+void MqttConnectInit(void)
 {
     OS_taskCreate(MqttConnectionTask,
                   (const int8_t *) "MQTT Connection",

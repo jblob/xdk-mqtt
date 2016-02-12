@@ -4,8 +4,8 @@
 
 #include "PIp.h"
 #include "Serval_Ip.h"
-#include "WLI_wlanInterface_ih.h"
-#include "NCI_networkConfigInterface_ih.h"
+#include "BCDS_WlanConnect.h"
+#include "BCDS_NetworkConfig.h"
 #include "OS_operatingSystem_ih.h"
 #include "em_wdog.h"
 
@@ -64,13 +64,13 @@ int WiFiInit(WifiCallback callback)
     return retVal;
 }
 
-int WiFiDeinit()
+int WiFiDeinit(void)
 {
     printf("WiFi disconnect!\n");
     return WLI_disconnect(NULL);
 }
 
-void WiFiPrintIP()
+void WiFiPrintIP(void)
 {
     NCI_ipSettings_t myIpSettings;
     memset(&myIpSettings, 0, sizeof(myIpSettings));

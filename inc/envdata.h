@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "sensordata.h"
 
-void EnvSensorInit();
-void EnvSensorDeinit();
+void EnvSensorInit(void);
+void EnvSensorDeinit(void);
 void EnvSensorGetData(SensorData* data);

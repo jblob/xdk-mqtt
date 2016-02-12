@@ -6,9 +6,9 @@
 
 extern OS_taskHandle_tp tickTaskHandle;
 
-void TickInit();
-void TickKill();
-void CommandHandlerInit();
-void WifiConnectInit();
-void MqttConnectInit();
-void Restart();
+void TickInit(void);
+void TickKill(void);
+void CommandHandlerInit(void);
+void WifiConnectInit(void);
+void MqttConnectInit(void);
+void Restart(void);

@@ -9,7 +9,7 @@
 // auto generated file with credentials
 #include "credentials.h"
 
-static MqttErrorCode MqttConnect();
+static MqttErrorCode MqttConnect(void);
 static size_t SerializeData(NameValue* data, char* msg);
 
 static Network mqttNet;
@@ -89,7 +89,7 @@ void MqttYield(void* context)
     }
 }
 
-MqttErrorCode MqttConnect()
+MqttErrorCode MqttConnect(void)
 {
     MqttErrorCode ret = FAILURE;
     ret = ConnectNetwork(&mqttNet, (int8_t*)MQTT_SERVER, MQTT_SERVER_PORT);
@@ -134,7 +134,7 @@ static size_t SerializeData(NameValue* data, char* msg)
                    data->value);
 }
 
-void MqttStopPolling()
+void MqttStopPolling(void)
 {
     deletePolling = true;
 }

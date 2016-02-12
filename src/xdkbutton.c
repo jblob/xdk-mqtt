@@ -1,6 +1,6 @@
 #include "xdkbutton.h"
 #include "button.h"
-#include "xdk_board.h"
+#include "XdkBoardHandle.h"
 
 int EnableButton(BUTTON_handle_tp* buttonHandle);
 int SetButtonCallback(BUTTON_handle_tp* buttonHandle, buttonHandler handler);

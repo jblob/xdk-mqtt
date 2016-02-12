@@ -1,11 +1,11 @@
 #include "leds.h"
 #include <stdio.h>
 #include <stdint.h>
-#include "xdk_board.h"
+#include "XdkBoardHandle.h"
 
 static LED_handle_tp leds[] = {NULL, NULL, NULL};
 
-int LedInit()
+int LedInit(void)
 {
     int ret = 0;
     leds[RED_LED] = LED_create(gpioRedLed_Handle, GPIO_STATE_OFF);
@@ -22,7 +22,7 @@ int LedInit()
     return ret;
 }
 
-int LedDeinit()
+int LedDeinit(void)
 {
     int ret = 0;
     for(int ledidx = 0; ledidx < NUM_LEDS; ++ledidx)

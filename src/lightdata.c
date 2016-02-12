@@ -1,11 +1,11 @@
-#include "lightsensor.h"
-#include "xdk_sensors.h"
+#include "BCDS_LightSensor.h"
+#include "XdkSensorHandle.h"
 #include "lightdata.h"
 
 static const char LIGHT_SENSOR_LABEL[] = "MAX09 Light Sensor";
 
 
-static void FillLightData(SensorData* data, lightsensor_data_t* meas)
+static void FillLightData(SensorData* data, uint32_t meas)
 {
     data->numMeas = 1;
     snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "light");
@@ -13,44 +13,50 @@ static void FillLightData(SensorData* data, lightsensor_data_t* meas)
     snprintf(data->meas[0].value,
              SENSOR_VALUE_SIZE,
              "%f",
-             (float)meas->sensorDataInMilliLux/1000.0);
+             (float)meas/1000.0);
 }
 
-void LightInit()
+Retcode_T LightPrivateInit(void* handle)
 {
-    SensorInit(&lightsensorInit,
-               xdkLightsensors_MAX09_Handle,
+    return LightSensor_init((LightSensor_HandlePtr_T)handle);
+}
+
+void LightInit(void)
+{
+    SensorInit(&LightPrivateInit,
+               xdkLightSensor_MAX44009_Handle,
                LIGHT_SENSOR_LABEL);
 }
 
-void LightDeinit()
+void LightDeinit(void)
 {
+    LightSensor_deInit(xdkLightSensor_MAX44009_Handle);
 }
 
 void LightGetData(SensorData* data)
 {
-    sensor_errorType_t returnValue = SENSOR_ERROR;
-    lightsensor_data_t luxRawData = {0};
-    lightsensor_data_t milliLuxData = {0};
+    Retcode_T returnValue = SENSOR_ERROR;
+    uint16_t luxRawData = 0;
+    uint32_t milliLuxData = 0;
 
     // Clear data so that a failed sensor read will not be reported
     SensorDataClear(data);
 
-    returnValue = lightsensorReadRawData(xdkLightsensors_MAX09_Handle, &luxRawData);
+    returnValue = LightSensor_readRawData(xdkLightSensor_MAX44009_Handle, &luxRawData);
     if(SENSOR_SUCCESS == returnValue)
     {
-        printf("\n%s Raw Data : %x \n", LIGHT_SENSOR_LABEL, luxRawData.sensorRawData);
+        printf("\n%s Raw Data : %x \n", LIGHT_SENSOR_LABEL, luxRawData);
     }
     else
     {
         printf("%s Raw Data read FAILED\n\r", LIGHT_SENSOR_LABEL);
     }
 
-    returnValue = lightsensorReadLuxData(xdkLightsensors_MAX09_Handle, &milliLuxData);
+    returnValue = LightSensor_readLuxData(xdkLightSensor_MAX44009_Handle, &milliLuxData);
     if(SENSOR_SUCCESS == returnValue)
     {
-        FillLightData(data, &milliLuxData);
-        printf("%s Data : %d mlux\n\r", LIGHT_SENSOR_LABEL, (unsigned int)milliLuxData.sensorDataInMilliLux);
+        FillLightData(data, milliLuxData);
+        printf("%s Data : %d mlux\n\r", LIGHT_SENSOR_LABEL, (unsigned int)milliLuxData);
     }
     else
     {

@@ -1,10 +1,10 @@
-#include "magnetometer.h"
-#include "xdk_sensors.h"
+#include "BCDS_Magnetometer.h"
+#include "XdkSensorHandle.h"
 #include "magnetodata.h"
 
 static const char MAGNETO_LABEL[] = "BMM150 Magnetometer";
 
-static void FillMagnetoData(SensorData* data, magnetometer_xyzData_t* meas)
+static void FillMagnetoData(SensorData* data, Magnetometer_XyzData_T* meas)
 {
     data->numMeas = 1;
     snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "magnetometer");
@@ -17,26 +17,32 @@ static void FillMagnetoData(SensorData* data, magnetometer_xyzData_t* meas)
              (float)meas->zAxisData);
 }
 
-void MagnetoInit()
+Retcode_T PrivateInit(void* handle)
 {
-    SensorInit(&magnetometerInit,
+    return Magnetometer_init((Magnetometer_HandlePtr_T)handle);
+}
+
+void MagnetoInit(void)
+{
+    SensorInit(&PrivateInit,
                xdkMagnetometer_BMM150_Handle,
                MAGNETO_LABEL);
 }
 
-void MagnetoDeinit()
+void MagnetoDeinit(void)
 {
+    Magnetometer_deInit(xdkMagnetometer_BMM150_Handle);
 }
 
 void MagnetoGetData(SensorData* data)
 {
-    sensor_errorType_t returnValue = SENSOR_ERROR;
-    magnetometer_xyzData_t getMagData = {0};
+    Retcode_T returnValue = SENSOR_ERROR;
+    Magnetometer_XyzData_T getMagData = {0};
 
     // Clear data so that a failed sensor read will not be reported
     SensorDataClear(data);
 
-    returnValue = magnetometerReadXyzLsbData(xdkMagnetometer_BMM150_Handle, &getMagData);
+    returnValue = Magnetometer_readXyzLsbData(xdkMagnetometer_BMM150_Handle, &getMagData);
     if(SENSOR_SUCCESS == returnValue)
     {
         printf("\n%s Raw Data : x = %ld, y = %ld, z = %ld\n",
@@ -50,7 +56,7 @@ void MagnetoGetData(SensorData* data)
         printf("%s Raw Data read FAILED\n\r", MAGNETO_LABEL);
     }
 
-    returnValue = magnetometerReadXyzTeslaData(xdkMagnetometer_BMM150_Handle, &getMagData);
+    returnValue = Magnetometer_readXyzTeslaData(xdkMagnetometer_BMM150_Handle, &getMagData);
     if(SENSOR_SUCCESS == returnValue)
     {
         FillMagnetoData(data, &getMagData);

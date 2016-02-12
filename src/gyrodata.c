@@ -1,10 +1,10 @@
-#include "gyroscope.h"
-#include "xdk_sensors.h"
+#include "BCDS_Gyroscope.h"
+#include "XdkSensorHandle.h"
 #include "gyrodata.h"
 
 static const char GYRO_LABEL[] = "BMG160 Gyroscope";
 
-static void FillGyroData(SensorData* data, gyro_xyzData_t* meas)
+static void FillGyroData(SensorData* data, Gyroscope_XyzData_T* meas)
 {
     data->numMeas = 1;
     snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "gyro");
@@ -12,39 +12,45 @@ static void FillGyroData(SensorData* data, gyro_xyzData_t* meas)
     snprintf(data->meas[0].value,
              SENSOR_VALUE_SIZE,
              "{\"x\":%f, \"y\":%f, \"z\":%f}",
-             (float)meas->xData/1000.0,
-             (float)meas->yData/1000.0,
-             (float)meas->zData/1000.0);
+             (float)meas->xAxisData/1000.0,
+             (float)meas->yAxisData/1000.0,
+             (float)meas->zAxisData/1000.0);
 }
 
-void GyroInit()
+static Retcode_T GyroPrivateInit(void* handle)
 {
-    SensorInit(&gyroscopeInit,
+    return Gyroscope_init((Gyroscope_HandlePtr_T)handle);
+}
+
+void GyroInit(void)
+{
+    SensorInit(&GyroPrivateInit,
                xdkGyroscope_BMG160_Handle,
                GYRO_LABEL);
 }
 
-void GyroDeinit()
+void GyroDeinit(void)
 {
+    Gyroscope_deInit(xdkGyroscope_BMG160_Handle);
 }
 
 void GyroGetData(SensorData* data)
 {
-    sensor_errorType_t returnValue = SENSOR_ERROR;
-    gyro_xyzData_t getRawData = {0};
-    gyro_xyzData_t getMdegData = {0};
+    Retcode_T returnValue = SENSOR_ERROR;
+    Gyroscope_XyzData_T getRawData = {0};
+    Gyroscope_XyzData_T getMdegData = {0};
 
     // Clear data so that a failed sensor read will not be reported
     SensorDataClear(data);
 
-    returnValue = gyroscopeReadXyzValue(xdkGyroscope_BMG160_Handle, &getRawData);
+    returnValue = Gyroscope_readXyzValue(xdkGyroscope_BMG160_Handle, &getRawData);
     if(SENSOR_SUCCESS == returnValue)
     {
         printf("\n%s Raw Data : x = %ld, y = %ld, z = %ld\n",
                GYRO_LABEL,
-               (long int)getRawData.xData,
-               (long int)getRawData.yData,
-               (long int)getRawData.zData);
+               (long int)getRawData.xAxisData,
+               (long int)getRawData.yAxisData,
+               (long int)getRawData.zAxisData);
 
     }
     else
@@ -52,15 +58,15 @@ void GyroGetData(SensorData* data)
         printf("%s Raw Data read FAILED\n\r", GYRO_LABEL);
     }
 
-    returnValue = gyroscopeReadXyzDegreeValue(xdkGyroscope_BMG160_Handle, &getMdegData);
+    returnValue = Gyroscope_readXyzDegreeValue(xdkGyroscope_BMG160_Handle, &getMdegData);
     if(SENSOR_SUCCESS == returnValue)
     {
         FillGyroData(data, &getMdegData);
         printf("%s Converted Data : x = %ld mDeg, y = %ld mDeg, z = %ld mDeg\n\r",
                GYRO_LABEL,
-               (long int)getMdegData.xData,
-               (long int)getMdegData.yData,
-               (long int)getMdegData.zData);
+               (long int)getMdegData.xAxisData,
+               (long int)getMdegData.yAxisData,
+               (long int)getMdegData.zAxisData);
 
     }
     else
