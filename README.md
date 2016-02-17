@@ -44,3 +44,7 @@ Out of the box XDK will send measurements from all sensors to the cloud and reac
   - {"path" : "sensor", "command" : "\<sensor\>", "value" : "1 | 0"}
   - values: 0 - off, 1 - on
   - \<sensor\>: "acc", "gyr", "env", "lgt", "mag"
+
+# Third party libraries used
+[jsmn](https://github.com/zserge/jsmn) under MIT license
+[Paho](http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.embedded-c.git) under EPL license
