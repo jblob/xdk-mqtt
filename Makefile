@@ -20,9 +20,13 @@ override CFLAGS += $(CFLAGS_APP)
 override ASMFLAGS += $(ASMFLAGS_APP)
 override LDFLAGS += $(LDFLAGS_APP)
 
+JSMN_DIR = $(JSMN)
+PAHO_PACKET_DIR = $(PAHO_PKT)
+
 export BCDS_XDK_INCLUDES = \
 	-I $(BCDS_APP_DIR)/inc \
-	-I $(BCDS_APP_DIR)/src
+	-I $(JSMN_DIR) \
+	-I $(PAHO_PACKET_DIR)
 
 # Application Files :Add the Source file
 export BCDS_XDK_APP_SOURCE_FILES = \
@@ -41,13 +45,16 @@ export BCDS_XDK_APP_SOURCE_FILES = \
 	$(BCDS_APP_DIR)/src/sensordata.c \
 	$(BCDS_APP_DIR)/src/MQTTClient.c \
 	$(BCDS_APP_DIR)/src/MQTTXDK.c \
-	$(BCDS_APP_DIR)/src/jsmn.c \
-	$(BCDS_APP_DIR)/src/MQTTPacket.c \
-	$(BCDS_APP_DIR)/src/MQTTConnectClient.c \
-	$(BCDS_APP_DIR)/src/MQTTDeserializePublish.c \
-	$(BCDS_APP_DIR)/src/MQTTSubscribeClient.c \
-	$(BCDS_APP_DIR)/src/MQTTSerializePublish.c
 
+EXTERNAL_SOURCES = \
+	$(JSMN_DIR)/jsmn.c \
+	$(PAHO_PACKET_DIR)/MQTTPacket.c \
+	$(PAHO_PACKET_DIR)/MQTTConnectClient.c \
+	$(PAHO_PACKET_DIR)/MQTTDeserializePublish.c \
+	$(PAHO_PACKET_DIR)/MQTTSubscribeClient.c \
+	$(PAHO_PACKET_DIR)/MQTTSerializePublish.c
+
+export EXTERNAL_OBJECTS = $(EXTERNAL_SOURCES:.c=.o)
 
 ELF_SIZE = $(QUOTE)arm-none-eabi-size$(QUOTE)
 OBJCOPY = $(QUOTE)arm-none-eabi-objcopy$(QUOTE)
@@ -69,40 +76,49 @@ CREDENTIALS_JSON = $(BCDS_APP_DIR)/src/credentials.json
 CREDENTIALS_HEADER = $(BCDS_APP_DIR)/inc/credentials.h
 MQTT_SERVER = mqtt.relayr.io
 MQTT_PORT = 1883
-SSID = <!PUT_YOUR)WIFI)HERE
-PASS = <!PUT_YOUR)WIFI)HERE
+SSID = <PUT_YOUR_WIFI_SSID_HERE!
+PASS = <PUT_YOUR_WIFI_PASS_HERE!
 XDK_APP_ADDRESS = 0x00010000
 BCDS_DEVICE_ID = EFM32GG390F1024
+OPENOCD = openocd
+OOCDINTERFACE = $(XDK_OCD_INTERFACE)
+PYTHON_EXE = python
 
-.PHONY: clean debug release flashnix
+.PHONY: all clean flashocd flashsegger debug release
 
 # Default build is release build
-all:      release
+all:      debug
 
+release:  BUILD_TYPE = release
 release:  CFLAGS += -DNDEBUG -O0 -fomit-frame-pointer
+
+debug:    BUILD_TYPE = debug
 debug:    CFLAGS += -O0 -g $(DEBUG_FEATURES_CONFIG)
 
-# select correct flashing target based on system: WIN or NIX for Linux/OSX
-flashdebug: all flashnixdebug
-flashrelease: all flashnixrelease
+release:: build
+debug:: build
 
-debug:: createcredentials
-		$(MAKE) -C $(BCDS_BASE_DIR)/xdk110/Common -f application.mk $(@)
-		@echo [ HEX ] $(@)/$(BCDS_APP_NAME).hex
-		@$(OBJCOPY) -O ihex $(@)/$(BCDS_APP_NAME).out $(@)/$(BCDS_APP_NAME).hex
-		@echo [ SIZE ]
-		@$(ELF_SIZE) -B -x $(@)/$(BCDS_APP_NAME).hex
+flashocd: BUILD_TYPE = debug
+flashocd: flashocdexe
 
-release:: createcredentials
-		$(MAKE) -C $(BCDS_BASE_DIR)/xdk110/Common -f application.mk $(@)
-		@echo [ HEX ] $(@)/$(BCDS_APP_NAME).hex
-		@$(OBJCOPY) -O ihex $(@)/$(BCDS_APP_NAME).out $(@)/$(BCDS_APP_NAME).hex
+flashsegger: BUILD_TYPE = debug
+flashsegger: flashseggerexe
+
+$(BUILD_TYPE)/objects/%.o: %.c
+	@mkdir -p $(@D)
+	@echo "Building file $<"
+	@$(CC) $(DEPEDENCY_FLAGS) $(BCDS_CFLAGS_DEBUG_COMMON) $(BCDS_XDK_INCLUDES) -c $< -o $@
+
+build: createcredentials
+		$(MAKE) -C $(BCDS_BASE_DIR)/xdk110/Common -f application.mk $(BUILD_TYPE)
+		@echo [ HEX ] $(BUILD_TYPE)/$(BCDS_APP_NAME).hex
+		@$(OBJCOPY) -O ihex $(BUILD_TYPE)/$(BCDS_APP_NAME).out $(BUILD_TYPE)/$(BCDS_APP_NAME).hex
 		@echo [ SIZE ]
-		@$(ELF_SIZE) -B -x $(@)/$(BCDS_APP_NAME).hex
+		@$(ELF_SIZE) -B -x $(BUILD_TYPE)/$(BCDS_APP_NAME).hex
 
 createcredentials:
 	@echo "Generating credentials."
-	@$(BCDS_APP_DIR)/gencredentials.py $(CREDENTIALS_JSON) $(CREDENTIALS_HEADER) $(MQTT_SERVER) $(MQTT_PORT) \
+	@$(PYTHON_EXE) $(BCDS_APP_DIR)/gencredentials.py $(CREDENTIALS_JSON) $(CREDENTIALS_HEADER) $(MQTT_SERVER) $(MQTT_PORT) \
 	$(SSID) $(PASS)
 
 clean:
@@ -110,25 +126,16 @@ clean:
 	 $(RMDIRS) $(FLASH_CMD_FILE)
 	 $(MAKE) -C $(BCDS_BASE_DIR)/xdk110/Common -f application.mk clean
 
-flashnixdebug: debug
+flashseggerexe: build
 	@echo "si 1" > $(FLASH_CMD_FILE)
 	@echo "speed 4000" >> $(FLASH_CMD_FILE)
 	@echo "device $(BCDS_DEVICE_ID)" >> $(FLASH_CMD_FILE)
 	@echo "halt" >> $(FLASH_CMD_FILE)
-	@echo "loadbin debug/$(BCDS_APP_NAME).hex $(XDK_APP_ADDRESS)" >> $(FLASH_CMD_FILE)
+	@echo "loadbin $(BUILD_TYPE)/$(BCDS_APP_NAME).hex $(XDK_APP_ADDRESS)" >> $(FLASH_CMD_FILE)
 	@echo "r" >> $(FLASH_CMD_FILE)
 	@echo "g" >> $(FLASH_CMD_FILE)
 	@echo "q" >> $(FLASH_CMD_FILE)
 	$(FLASH) -commanderscript $(FLASH_CMD_FILE)
 
-flashnixdebug: release
-	@echo "si 1" > $(FLASH_CMD_FILE)
-	@echo "speed 4000" >> $(FLASH_CMD_FILE)
-	@echo "device $(BCDS_DEVICE_ID)" >> $(FLASH_CMD_FILE)
-	@echo "halt" >> $(FLASH_CMD_FILE)
-	@echo "loadbin release/$(BCDS_APP_NAME).hex $(XDK_APP_ADDRESS)" >> $(FLASH_CMD_FILE)
-	@echo "r" >> $(FLASH_CMD_FILE)
-	@echo "g" >> $(FLASH_CMD_FILE)
-	@echo "q" >> $(FLASH_CMD_FILE)
-	$(FLASH) -commanderscript $(FLASH_CMD_FILE)
-
+flashocdexe: build
+	@$(OPENOCD) -f $(OOCDINTERFACE) -f xdk.cfg -c "program $(BUILD_TYPE)/$(BCDS_APP_NAME).hex verify reset exit"

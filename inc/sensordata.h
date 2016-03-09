@@ -6,7 +6,7 @@
 #define MAX_MEASUREMENTS  (  5 )
 #define NUM_SENSORS       (  5 )
 #define SENSOR_NAME_SIZE  ( 20 )
-#define SENSOR_VALUE_SIZE ( 30 )
+#define SENSOR_VALUE_SIZE ( 300 )
 
 typedef struct
 {
