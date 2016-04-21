@@ -8,7 +8,9 @@ This app uses two libraries as submodules:
 # What you need
 
 - Grab & install XDK Workbench (app tested with version 1.5)
-- Clone this app and init submodules - git sumbodule init --recursive
+- Clone this app and init submodules:
+  - git submodule init
+  - git submodule update
 - Linux/OSX only: debug probe (currently supported: JTAG Lock Pick Tiny 2 via OpenOCD and Segger JLink)
 
 ## Extra steps for Linux/OSX (needed only once):
