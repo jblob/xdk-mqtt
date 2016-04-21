@@ -45,16 +45,12 @@ export BCDS_XDK_APP_SOURCE_FILES = \
 	$(BCDS_APP_DIR)/src/sensordata.c \
 	$(BCDS_APP_DIR)/src/MQTTClient.c \
 	$(BCDS_APP_DIR)/src/MQTTXDK.c \
-
-EXTERNAL_SOURCES = \
-	$(JSMN_DIR)/jsmn.c \
-	$(PAHO_PACKET_DIR)/MQTTPacket.c \
-	$(PAHO_PACKET_DIR)/MQTTConnectClient.c \
-	$(PAHO_PACKET_DIR)/MQTTDeserializePublish.c \
-	$(PAHO_PACKET_DIR)/MQTTSubscribeClient.c \
-	$(PAHO_PACKET_DIR)/MQTTSerializePublish.c
-
-export EXTERNAL_OBJECTS = $(EXTERNAL_SOURCES:.c=.o)
+	$(BCDS_APP_DIR)/src/jsmn/jsmn.c \
+	$(BCDS_APP_DIR)/src/paho/MQTTPacket/src/MQTTPacket.c \
+	$(BCDS_APP_DIR)/src/paho/MQTTPacket/src/MQTTConnectClient.c \
+	$(BCDS_APP_DIR)/src/paho/MQTTPacket/src/MQTTDeserializePublish.c \
+	$(BCDS_APP_DIR)/src/paho/MQTTPacket/src/MQTTSubscribeClient.c \
+	$(BCDS_APP_DIR)/src/paho/MQTTPacket/src/MQTTSerializePublish.c
 
 ELF_SIZE = $(QUOTE)arm-none-eabi-size$(QUOTE)
 OBJCOPY = $(QUOTE)arm-none-eabi-objcopy$(QUOTE)

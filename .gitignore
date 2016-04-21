@@ -28,12 +28,10 @@
 *.app
 
 # Generated files + folders
-make/lst/
-make/exe/
-make/build/
 inc/credentials.h
-make/jlinkcmd.jlink
-
+jlinkcmd.jlink
+debug
+release
 
 # Credentials files
 src/credentials.json
