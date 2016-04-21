@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "sensordata.h"
 
-void AccelInit();
-void AccelDeinit();
+void AccelInit(void);
+void AccelDeinit(void);
 void AccelGetData(SensorData* data);

@@ -2,5 +2,5 @@
 
 #include "MQTTClient.h"
 
-void CommandHandlerInit();
+void CommandHandlerInit(void);
 void CommandConfigHandler(MessageData* data);

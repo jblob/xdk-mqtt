@@ -1,10 +1,10 @@
-#include "accelerometer.h"
-#include "xdk_sensors.h"
+#include "BCDS_Accelerometer.h"
+#include "XdkSensorHandle.h"
 #include "acceldata.h"
 
 static const char ACCEL_LABEL[] = "BMA280 Accelerometer";
 
-static void FillAccelData(SensorData* data, accelerometer_xyzData_t* meas)
+static void FillAccelData(SensorData* data, Accelerometer_XyzData_T* meas)
 {
     data->numMeas = 1;
     snprintf(data->meas[0].name, SENSOR_NAME_SIZE, "%s", "acceleration");
@@ -17,26 +17,32 @@ static void FillAccelData(SensorData* data, accelerometer_xyzData_t* meas)
              (float)meas->zAxisData/1000.0);
 }
 
-void AccelInit()
+static Retcode_T AccelPrivateInit(void* handle)
 {
-    SensorInit(&accelerometerInit,
+    return Accelerometer_init((Accelerometer_HandlePtr_T)handle);
+}
+
+void AccelInit(void)
+{
+    SensorInit(&AccelPrivateInit,
                xdkAccelerometers_BMA280_Handle,
                ACCEL_LABEL);
 }
 
-void AccelDeinit()
+void AccelDeinit(void)
 {
+    Accelerometer_deInit(xdkAccelerometers_BMA280_Handle);
 }
 
 void AccelGetData(SensorData* data)
 {
-    sensor_errorType_t returnValue = SENSOR_ERROR;
-    accelerometer_xyzData_t getaccelData = {0};
+    Retcode_T returnValue = SENSOR_ERROR;
+    Accelerometer_XyzData_T getaccelData = {0};
 
     // Clear data so that a failed sensor read will not be reported
     SensorDataClear(data);
 
-    returnValue = accelerometerReadXyzLsbValue(xdkAccelerometers_BMA280_Handle, &getaccelData);
+    returnValue = Accelerometer_readXyzLsbValue(xdkAccelerometers_BMA280_Handle, &getaccelData);
     if(SENSOR_SUCCESS == returnValue)
     {
         printf("\n%s Raw Data : x = %ld, y = %ld, z = %ld\n",
@@ -51,7 +57,7 @@ void AccelGetData(SensorData* data)
         printf("%s Raw Data read FAILED\n\r", ACCEL_LABEL);
     }
 
-    returnValue = accelerometerReadXyzGValue(xdkAccelerometers_BMA280_Handle, &getaccelData);
+    returnValue = Accelerometer_readXyzGValue(xdkAccelerometers_BMA280_Handle, &getaccelData);
     if(SENSOR_SUCCESS == returnValue)
     {
         FillAccelData(data, &getaccelData);

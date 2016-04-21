@@ -1,12 +1,12 @@
 #pragma once
 
 #include <stdbool.h>
-#include "sensorTypes.h"
+#include "BCDS_SensorErrorType.h"
 
 #define MAX_MEASUREMENTS  (  5 )
 #define NUM_SENSORS       (  5 )
 #define SENSOR_NAME_SIZE  ( 20 )
-#define SENSOR_VALUE_SIZE ( 30 )
+#define SENSOR_VALUE_SIZE ( 300 )
 
 typedef struct
 {
@@ -21,7 +21,7 @@ typedef struct
 } SensorData;
 
 typedef void(*SensorGetter)(SensorData* data);
-typedef sensor_errorType_t(*SensorInitializer)(void* handle);
+typedef Retcode_T(*SensorInitializer)(void* handle);
 
 extern SensorGetter sensors[];
 extern bool enabledSensors[];

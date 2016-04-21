@@ -1,10 +1,10 @@
-#include "environmentalSensor.h"
-#include "xdk_sensors.h"
+#include "BCDS_Environmental.h"
+#include "XdkSensorHandle.h"
 #include "envdata.h"
 
 static const char ENV_SENSOR_LABEL[] = "BME280 Environmental Sensor";
 
-static void FillEnvData(SensorData* data, environmental_data_t* meas)
+static void FillEnvData(SensorData* data, Environmental_Data_T* meas)
 {
     data->numMeas = 3;
 
@@ -18,35 +18,38 @@ static void FillEnvData(SensorData* data, environmental_data_t* meas)
     snprintf(data->meas[2].value, SENSOR_VALUE_SIZE, "%d", (int)meas->humidity);
 }
 
+static Retcode_T EnvPrivateInit(void* handle)
+{
+    return Environmental_init((Environmental_HandlePtr_T)handle);
+}
+
 void EnvSensorInit()
 {
-    SensorInit(&environmentalInit,
+    SensorInit(&EnvPrivateInit,
                xdkEnvironmental_BME280_Handle,
                ENV_SENSOR_LABEL);
 }
 
 void EnvSensorDeinit()
 {
+    Environmental_deInit(xdkEnvironmental_BME280_Handle);
 }
 
 void EnvSensorGetData(SensorData* data)
 {
-    sensor_errorType_t returnValue = SENSOR_ERROR;
-    uint8_t chipid = 0;
-    environmentalChipID(xdkEnvironmental_BME280_Handle, &chipid);
+    Retcode_T returnValue = SENSOR_ERROR;
 
-    environmental_data_t bme280 = {0};
-    environmental_lsbData_t bme280lsb = {0};
+    Environmental_Data_T bme280 = {0};
+    Environmental_LsbData_T bme280lsb = {0};
 
     // Clear data so that a failed sensor read will not be reported
     SensorDataClear(data);
 
-    returnValue = environmentalReadDataLSB(xdkEnvironmental_BME280_Handle, &bme280lsb);
+    returnValue = Environmental_readDataLSB(xdkEnvironmental_BME280_Handle, &bme280lsb);
     if(SENSOR_SUCCESS == returnValue)
     {
-        printf("\n%s Raw Data : id = %d, p = %ld, t = %ld, h = %ld\n",
+        printf("\n%s Raw Data : p = %ld, t = %ld, h = %ld\n",
                ENV_SENSOR_LABEL,
-               chipid,
                (long int)bme280lsb.pressure,
                (long int)bme280lsb.temperature,
                (long int)bme280lsb.humidity);
@@ -57,13 +60,12 @@ void EnvSensorGetData(SensorData* data)
         printf("%s Raw Data read FAILED\n\r", ENV_SENSOR_LABEL);
     }
 
-    returnValue = environmentalReadData(xdkEnvironmental_BME280_Handle, &bme280);
+    returnValue = Environmental_readData(xdkEnvironmental_BME280_Handle, &bme280);
     if(SENSOR_SUCCESS == returnValue)
     {
         FillEnvData(data, &bme280);
-        printf("%s Conversion Data : id = %d, p = %ld Pa, t = %ld mDeg, h = %ld %%\n\r",
+        printf("%s Conversion Data : p = %ld Pa, t = %ld mDeg, h = %ld %%\n\r",
                ENV_SENSOR_LABEL,
-               chipid,
                (long int)bme280.pressure,
                (long int)bme280.temperature,
                (long int)bme280.humidity);

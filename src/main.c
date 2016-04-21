@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "OS_operatingSystem_ih.h"
+#include "XdkSystemStartup.h"
 #include "mqtt.h"
 
 // sensors
@@ -35,9 +36,14 @@ bool enabledSensors[] = {true, // Env Sensor
                         };
 
 void ButtonOneCallback(void *handle, uint32_t userParameter);
-void WDogInit();
+void WDogInit(void);
 
-void SSU_initSystem(OS_timerHandle_tp xTimer)
+int main(void)
+{
+    systemStartup();
+}
+
+void appInitSystem(OS_timerHandle_tp xTimer)
 {
     (void) (xTimer);
     LedInit();
@@ -72,7 +78,7 @@ void ButtonOneCallback(void *handle, uint32_t userParameter)
     }
 }
 
-void WDogInit()
+void WDogInit(void)
 {
     WDOG_Init_TypeDef wdConfig = { false,              /* Do not Start watchdog when init done */
                                    false,              /* WDOG not counting during debug halt */

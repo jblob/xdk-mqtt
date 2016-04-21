@@ -1,32 +1,30 @@
 # XDK @ relayr cloud
 
 This is an extension of XDK example app with easy connection to relayr cloud.
-This app uses two libraries:
+This app uses two libraries as submodules:
 - Eclipse backed Paho MQTT (Embedded C version)
 - Great little JSON parser - JSMN
 
 # What you need
 
-- Grab & install XDK Workbench (app tested with version 1.3)
-- Clone Paho MQTT
-- Clone JSMN
-- Clone this app
-- Linux/OSX only: Segger JLink debug probe
+- Grab & install XDK Workbench (app tested with version 1.5)
+- Clone this app and init submodules:
+  - git submodule init
+  - git submodule update
+- Linux/OSX only: debug probe (currently supported: JTAG Lock Pick Tiny 2 via OpenOCD and Segger JLink)
 
 ## Extra steps for Linux/OSX (needed only once):
 - Set XDK_SDK environment variable to XDK SDK root directory (the one containing xdk110 folder)
-- Set PAHO_PKT environment variable to \<PAHO_REPO\>/MQTTPacket/src directory
-- Set JSMN environment variable to JSMN directory
 - Set GCC_ARM environment variable to ARM gcc compiler installation
 - Set SHELLNAMES and SH variables in \<XDK_SDK\>/xdk110/make/application.mk to your current shell (bash, zsh, etc.)
-- Make sure that both GCC ARM and Segger JLink binaries are available from command line
+- Make sure that both GCC ARM and Segger JLink/OpenOCD binaries are available from command line
 
 # Running the app
-1. Go to \<THIS_APP_REPO\>/make
-2. Connect XDK with USB cable (and Segger JLink on Linux/OSX) and turn it on
+1. Go to \<THIS_APP_REPO\>
+2. Connect XDK with USB cable (and debug probe on Linux/OSX) and turn it on
 3. Create a device on developer.relayr.io and save the credentials to \<THIS_APP_REPO\>/src/credentials.json
-4. Add your WiFi SSID and password to \<THIS_APP_REPO\>/make/Makefile
-5. Run: make (or "make flash" to build and flash)
+4. Add your WiFi SSID and password to \<THIS_APP_REPO\>/Makefile
+5. Run: make (or "make flashsegger" or "make flashocd" to build and flash with appropriate debugger)
 6. Enjoy!
 
 # Commands

@@ -1,0 +1,6 @@
+[submodule "src/jsmn"]
+	path = src/jsmn
+	url = https://github.com/zserge/jsmn
+[submodule "src/paho"]
+	path = src/paho
+	url = https://git.eclipse.org/r/paho/org.eclipse.paho.mqtt.embedded-c
