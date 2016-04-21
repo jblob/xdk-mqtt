@@ -20,13 +20,10 @@ override CFLAGS += $(CFLAGS_APP)
 override ASMFLAGS += $(ASMFLAGS_APP)
 override LDFLAGS += $(LDFLAGS_APP)
 
-JSMN_DIR = $(JSMN)
-PAHO_PACKET_DIR = $(PAHO_PKT)
-
 export BCDS_XDK_INCLUDES = \
 	-I $(BCDS_APP_DIR)/inc \
-	-I $(JSMN_DIR) \
-	-I $(PAHO_PACKET_DIR)
+	-I $(BCDS_APP_DIR)/src/jsmn \
+	-I $(BCDS_APP_DIR)/src/paho/MQTTPacket/src
 
 # Application Files :Add the Source file
 export BCDS_XDK_APP_SOURCE_FILES = \
