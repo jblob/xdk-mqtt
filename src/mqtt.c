@@ -67,10 +67,11 @@ int MqttSendData(NameValue* data)
     return ret;
 }
 
-void MqttSubscribe(messageHandler callback)
+int MqttSubscribe(messageHandler callback)
 {
     int ret = MQTTSubscribe(&mqttClient, "/v1/"MQTT_USER"/cmd", QOS0, callback);
     printf("MqttSubscribe:: %s %d\n", "/v1/"MQTT_USER"/cmd", ret);
+    return ret;
 }
 
 void MqttYield(void* context)

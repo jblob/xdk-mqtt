@@ -11,7 +11,7 @@ int  MqttInit(void);
 void MqttDeinit(void);
 int  MqttReconnect(void);
 int  MqttSendData(NameValue* data);
-void MqttSubscribe(messageHandler callback);
+int  MqttSubscribe(messageHandler callback);
 void MqttYield(void* context);
 void MqttStopPolling(void);
 void MqttSetPollingPeriod(uint32_t period);
