@@ -8,12 +8,15 @@
 #include "MQTTXDK.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "OS_operatingSystem_ih.h"
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#define CMN_TIMER_AUTO_RELOAD_ON         1      /**< Turn on Auto Reload of the timers */
+#define TIMER_NOT_ENOUGH_MEMORY        (-1L)	/**<Macro to define not enough memory error in timer*/
 
 static const int32_t TIMER_TICK_PERIOD = 10;
 static unsigned long MilliTimer = 0;
-static OS_timerHandle_tp sysTickIntHandle = NULL;
+static xTimerHandle sysTickIntHandle = NULL;
 
 void sysTickIntHandler(void *pvParameters)
 {
@@ -109,8 +112,10 @@ int ConnectNetwork(Network* net, int8_t* addr, int port)
     SlSockAddrIn_t sAddr;
     int addrSize;
     int retVal = -1;
+    int timerRetVal = TIMER_NOT_ENOUGH_MEMORY;
     unsigned long ipAddress;
 
+    printf ("<MQTTXDK.c><ConnectNetwork> (1) retval = %d\n\r", retVal);
     sl_NetAppDnsGetHostByName(addr, strlen((char*)addr), &ipAddress, AF_INET);
 
     sAddr.sin_family = AF_INET;
@@ -127,16 +132,16 @@ int ConnectNetwork(Network* net, int8_t* addr, int port)
     }
 
     retVal = sl_Connect(net->my_socket, ( SlSockAddr_t *)&sAddr, addrSize);
+    printf ("<MQTTXDK.c><ConnectNetwork> (2) retval = %d\n\r", retVal);
     if(retVal < 0)
     {
         printf("Failed to connect to socket!\n\r");
         sl_Close(net->my_socket);
         return retVal;
     }
-
-    sysTickIntHandle = OS_timerCreate((const int8_t *) "MqttTimer",
-                                      TIMER_TICK_PERIOD,
-                                      OS_AUTORELOAD_ON,
+    sysTickIntHandle = xTimerCreate((const char * const) "MqttTimer",
+                                      TIMER_TICK_PERIOD/portTICK_RATE_MS,
+ 									  CMN_TIMER_AUTO_RELOAD_ON,
                                       NULL,
                                       sysTickIntHandler);
 
@@ -144,12 +149,23 @@ int ConnectNetwork(Network* net, int8_t* addr, int port)
     {
         printf("Not enough memory to create MQTT Timer!");
     }
+    timerRetVal = xTimerStart(sysTickIntHandle, 0xFFFF/portTICK_RATE_MS);
+    if (TIMER_NOT_ENOUGH_MEMORY == timerRetVal)
+    {
+    	printf ("Timer Out Of Memory - should think about to stop here\n\r");
+    	// return -1; // ??
+    }
 
-    retVal = OS_timerStart(sysTickIntHandle, 0xFFFF);
-    if(OS_ERR_NOT_ENOUGH_MEMORY == retVal)
+//    retVal = xTimerStart(sysTickIntHandle, 0xFFFF);
+    printf ("<MQTTXDK.c><ConnectNetwork> portTICK_RATE_MS = %d\n\r", portTICK_RATE_MS);
+    printf ("<MQTTXDK.c><ConnectNetwork> (3) retval = %d\n\r", retVal);
+    if(pdFAIL == retVal)
     {
         printf("Not enough memory to start MQTT Timer!");
     }
 
+    printf ("<MQTTXDK.c><ConnectNetwork> returns %d\n\r", retVal);
+
+    printf ("<MQTTXDK.c><ConnectNetwork> (4) retval = %d\n\r", retVal);
     return retVal;
 }
