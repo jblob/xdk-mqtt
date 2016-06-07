@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "BCDS_PowerMgt.h"
+#include "FreeRTOSConfig.h"
+#include "portmacro.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
 
 #include "mqtt.h"
 #include "MQTTClient.h"
-#include "OS_operatingSystem_ih.h"
 
 // auto generated file with credentials
 #include "credentials.h"
@@ -28,8 +33,11 @@ int MqttInit(void)
 {
     printf("Mqtt Init\n");
     MqttErrorCode returnValue = FAILURE;
+    printf ("<mqtt.c><MqttInit>calling NewNetwork\n\r");
     NewNetwork(&mqttNet);
+    printf ("<mqtt.c><MqttInit>returned from NewNetwork\n\r");
     returnValue = MqttConnect();
+    printf ("<mqtt.c><MqttInit>MqttConnect returned %d\n\r", returnValue);
     if(SUCCESS == returnValue)
     {
         printf("Mqtt Success\n");
@@ -81,12 +89,13 @@ void MqttYield(void* context)
         if(deletePolling)
         {
             // Note: This kills the thread.
-            OS_taskDelete(NULL);
+            vTaskDelete(NULL);
         }
         context = context;
         printf("Polling MQTT command queue\n");
         MQTTYield(&mqttClient, MQTT_YIELD_TIMEOUT);
-        OS_taskDelay(pollingPeriod);
+        //OS_taskDelay(pollingPeriod);
+    	vTaskDelay(pollingPeriod/portTICK_PERIOD_MS);
     }
 }
 
@@ -94,6 +103,7 @@ MqttErrorCode MqttConnect(void)
 {
     MqttErrorCode ret = FAILURE;
     ret = ConnectNetwork(&mqttNet, (int8_t*)MQTT_SERVER, MQTT_SERVER_PORT);
+    printf ("<mqtt.c><MqttConnect>ConnectNetwork returned %d\n\r", ret);
     if(SUCCESS == ret)
     {
         MQTTClient(&mqttClient, &mqttNet, 1000, buf, MQTT_BUFF_SIZE, readbuf, MQTT_BUFF_SIZE);
